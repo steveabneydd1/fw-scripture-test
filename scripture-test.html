@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scripture Knowledge Test</title>
+<style>
+/* ─── CONFIGURATION ─────────────────────────────────────────────────────────
+   Before uploading to GitHub Pages, paste your Anthropic API key below.
+   Get one at: https://console.anthropic.com/
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --primary: #2c4a7c;
+  --primary-dark: #1e3560;
+  --primary-light: #eef3fb;
+  --gold: #b8860b;
+  --gold-light: #fdf8e8;
+  --text: #1a202c;
+  --text-muted: #5a6a7e;
+  --border: #d8e2f0;
+  --bg: #f4f7fc;
+  --white: #ffffff;
+  --green: #276749;
+  --green-light: #f0fff4;
+  --red: #9b2c2c;
+  --red-light: #fff5f5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  color: white;
+  text-align: center;
+  padding: 2.5rem 1rem 2rem;
+  border-bottom: 4px solid var(--gold);
+}
+.site-header h1 { font-size: 1.9rem; letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+.site-header p { opacity: 0.8; font-size: 1rem; font-style: italic; }
+
+/* ── LAYOUT ── */
+.container { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+/* ── INSTRUCTIONS ── */
+.instructions {
+  background: var(--gold-light);
+  border: 1.5px solid #d4a017;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+}
+.instructions h3 { color: var(--gold); margin-bottom: 0.65rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.instructions ol { padding-left: 1.4rem; }
+.instructions li { margin-bottom: 0.3rem; font-size: 0.95rem; color: var(--text-muted); }
+
+/* ── NAME FIELD ── */
+.name-block {
+  background: white;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.name-block label { font-weight: bold; font-size: 1rem; white-space: nowrap; }
+.name-block input {
+  flex: 1;
+  min-width: 200px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+/* ── SECTION CARDS ── */
+.section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem 1.5rem 1.75rem;
+  margin: 1.5rem 0;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 2px 10px rgba(44,74,124,0.06);
+}
+.section-header {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── QUESTION ROWS ── */
+.q-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+.q-num {
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-family: sans-serif;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+.q-body { flex: 1; }
+.q-text {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  margin-bottom: 0.45rem;
+  line-height: 1.4;
+}
+.q-verse {
+  font-style: italic;
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-bottom: 0.45rem;
+  line-height: 1.4;
+  border-left: 3px solid var(--gold);
+  padding-left: 0.65rem;
+}
+
+input[type="text"], select {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 0.5rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: white;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  appearance: auto;
+}
+input[type="text"]:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(44,74,124,0.12);
+}
+
+/* ── CHRONOLOGICAL DRAG & DROP ── */
+.drag-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sortable-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sort-item {
+  background: var(--primary-light);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  font-size: 0.95rem;
+}
+.sort-item:hover { border-color: var(--primary); background: #dce8f8; }
+.sort-item.dragging { opacity: 0.45; cursor: grabbing; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+.sort-item.over { border-color: var(--gold); background: var(--gold-light); border-style: dashed; }
+.drag-handle { color: #8a9bb5; font-size: 1.1rem; line-height: 1; }
+.sort-pos {
+  background: var(--primary);
+  color: white;
+  border-radius: 4px;
+  font-family: sans-serif;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* ── MULTIPLE CHOICE POOL NOTE ── */
+.pool-note {
+  background: var(--primary-light);
+  border-radius: 6px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--primary);
+  margin-bottom: 1.1rem;
+  font-family: sans-serif;
+}
+
+/* ── SUBMIT ── */
+.submit-wrap {
+  text-align: center;
+  padding: 2rem 0 1rem;
+}
+.btn-submit {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 16px rgba(44,74,124,0.35);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(44,74,124,0.4); }
+.btn-submit:active { transform: translateY(0); }
+.btn-submit:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+/* ── LOADING ── */
+#loading-screen {
+  display: none;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.spinner {
+  width: 56px; height: 56px;
+  border: 5px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading-screen p { color: var(--text-muted); font-style: italic; font-size: 1.05rem; }
+
+/* ── RESULTS ── */
+#results-screen { display: none; }
+
+.score-banner {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  margin: 1.5rem 0;
+  border-bottom: 4px solid var(--gold);
+}
+.score-name { font-size: 1rem; opacity: 0.75; margin-bottom: 0.25rem; font-style: italic; }
+.score-big { font-size: 4.5rem; font-weight: bold; line-height: 1; }
+.score-out { font-size: 1.1rem; opacity: 0.75; margin-top: 0.15rem; }
+.score-pct { font-size: 1.4rem; margin-top: 0.5rem; font-style: italic; opacity: 0.9; }
+
+.result-section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+  border: 1.5px solid var(--border);
+}
+.result-section-title {
+  font-size: 0.82rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--primary);
+  border-bottom: 1.5px solid var(--primary-light);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.result-item {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f4fa;
+  font-size: 0.9rem;
+  align-items: flex-start;
+}
+.result-item:last-child { border-bottom: none; }
+.ri-icon { flex-shrink: 0; font-size: 1rem; margin-top: 0.05rem; }
+.ri-body { flex: 1; }
+.ri-q { color: var(--text-muted); font-style: italic; font-size: 0.85rem; }
+.ri-user { font-weight: bold; margin: 0.1rem 0; }
+.ri-correct { color: var(--green); font-size: 0.83rem; }
+.ri-note { color: #b85c00; font-size: 0.83rem; font-style: italic; }
+
+.btn-retake {
+  background: var(--gold);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 2rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 1.5rem;
+}
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .site-header h1 { font-size: 1.4rem; }
+  .section-card { padding: 1.25rem 1rem; }
+  .score-big { font-size: 3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CONFIGURATION — Edit before uploading to GitHub Pages
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+  // Your Google Apps Script web app URL — grading and sheet saving both happen there
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxwWyK_QjHYynSzkuM1U_1bb2udoloG8fdYfNRIAqr3ETLMpEuZPoSU9KafvfIvg19XMA/exec';
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <h1>Scripture Knowledge Test</h1>
+  <p>Answer all 99 questions without using your Bible</p>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TEST FORM
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="test-screen">
+<div class="container">
+
+  <!-- Name -->
+  <div class="name-block">
+    <label for="taker-name">Your Name:</label>
+    <input type="text" id="taker-name" placeholder="First and Last Name" autocomplete="name">
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <h3>Instructions</h3>
+    <ol>
+      <li>Enter your name above.</li>
+      <li>Answer all 99 questions <strong>without any assistance including your Bible, the internet, or AI</strong>.</li>
+      <li>For the Chronological Order section, drag the events into the correct order.</li>
+      <li>Click <strong>Grade My Test</strong> when finished. Your results will appear instantly.</li>
+    </ol>
+  </div>
+
+  <form id="test-form">
+
+    <!-- ── SECTION 1: WHO DID ── -->
+    <div class="section-card">
+      <div class="section-header">Short Answer — Who Did the Following?</div>
+
+      <div class="q-row"><div class="q-num">1</div><div class="q-body">
+        <div class="q-text">Wrote the book of Acts?</div>
+        <input type="text" name="q1" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">2</div><div class="q-body">
+        <div class="q-text">Appeared with Jesus on the Mount of Transfiguration?</div>
+        <input type="text" name="q2" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">3</div><div class="q-body">
+        <div class="q-text">Directed the rebuilding of the wall of Jerusalem?</div>
+        <input type="text" name="q3" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">4</div><div class="q-body">
+        <div class="q-text">Killed a thousand Philistines with a donkey's jawbone?</div>
+        <input type="text" name="q4" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">5</div><div class="q-body">
+        <div class="q-text">Led the Israelites into the promised land?</div>
+        <input type="text" name="q5" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">6</div><div class="q-body">
+        <div class="q-text">Was exiled to the island of Patmos where he wrote Revelation?</div>
+        <input type="text" name="q6" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">7</div><div class="q-body">
+        <div class="q-text">Became the first king of the 10 tribes that broke away?</div>
+        <input type="text" name="q7" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">8</div><div class="q-body">
+        <div class="q-text">Rescued David from her foolish husband Nabal?</div>
+        <input type="text" name="q8" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">9</div><div class="q-body">
+        <div class="q-text">Was rebuked by Paul for refusing to eat with Gentiles?</div>
+        <input type="text" name="q9" autocomplete="off">
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 2: WHERE ── -->
+    <div class="section-card">
+      <div class="section-header">Short Answer — Where Geographically Did the Following Events Take Place?</div>
+
+      <div class="q-row"><div class="q-num">10</div><div class="q-body">
+        <div class="q-text">God gave Moses the Ten Commandments?</div>
+        <input type="text" name="q10" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">11</div><div class="q-body">
+        <div class="q-text">A silversmith caused a riot?</div>
+        <input type="text" name="q11" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">12</div><div class="q-body">
+        <div class="q-text">Elijah had a confrontation with the prophets of Baal?</div>
+        <input type="text" name="q12" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">13</div><div class="q-body">
+        <div class="q-text">Believers were first called "Christians"?</div>
+        <input type="text" name="q13" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">14</div><div class="q-body">
+        <div class="q-text">The river Jesus was baptized in?</div>
+        <input type="text" name="q14" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">15</div><div class="q-body">
+        <div class="q-text">The walls of the city collapsed after the Israelites marched around it?</div>
+        <input type="text" name="q15" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">16</div><div class="q-body">
+        <div class="q-text">Jesus walked on water?</div>
+        <input type="text" name="q16" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">17</div><div class="q-body">
+        <div class="q-text">The place where Jonah was supposed to be going when he fled to Tarshish?</div>
+        <input type="text" name="q17" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">18</div><div class="q-body">
+        <div class="q-text">The place where Paul was heading when he was blinded on the road?</div>
+        <input type="text" name="q18" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">19</div><div class="q-body">
+        <div class="q-text">The river Ezekiel was at with the exiles when he received a vision from God?</div>
+        <input type="text" name="q19" autocomplete="off">
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 3: WHICH BOOK ── -->
+    <div class="section-card">
+      <div class="section-header">Short Answer — In Which Book of the Bible Do You Find the Following?</div>
+
+      <div class="q-row"><div class="q-num">20</div><div class="q-body">
+        <div class="q-text">Peter visits Cornelius where he learns that God accepts Jews and Gentiles?</div>
+        <input type="text" name="q20" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">21</div><div class="q-body">
+        <div class="q-text">Paul asks a runaway slave to be welcomed back?</div>
+        <input type="text" name="q21" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">22</div><div class="q-body">
+        <div class="q-text">Israel worships a golden calf made by Aaron?</div>
+        <input type="text" name="q22" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">23</div><div class="q-body">
+        <div class="q-text">The story of Joseph and the brothers?</div>
+        <input type="text" name="q23" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">24</div><div class="q-body">
+        <div class="q-text">Twelve men explore the land of Canaan, but only two trust God to give it to them?</div>
+        <input type="text" name="q24" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">25</div><div class="q-body">
+        <div class="q-text">God's judgment on Israel is pictured by a prophet as a horde of locusts?</div>
+        <input type="text" name="q25" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">26</div><div class="q-body">
+        <div class="q-text">A description of the armor of God?</div>
+        <input type="text" name="q26" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">27</div><div class="q-body">
+        <div class="q-text">The words "My God, my God, why have you forsaken me?" in the Old Testament?</div>
+        <input type="text" name="q27" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">28</div><div class="q-body">
+        <div class="q-text">A prophet marries a prostitute?</div>
+        <input type="text" name="q28" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">29</div><div class="q-body">
+        <div class="q-text">The Magi visiting the Christ child?</div>
+        <input type="text" name="q29" autocomplete="off">
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 4: BOOK AND CHAPTER ── -->
+    <div class="section-card">
+      <div class="section-header">Short Answer — Name the Book and Chapter</div>
+
+      <div class="q-row"><div class="q-num">30</div><div class="q-body">
+        <div class="q-text">God first speaks the Ten Commandments?</div>
+        <input type="text" name="q30" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">31</div><div class="q-body">
+        <div class="q-text">The call of Abram?</div>
+        <input type="text" name="q31" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">32</div><div class="q-body">
+        <div class="q-text">The Sermon on the Mount?</div>
+        <input type="text" name="q32" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">33</div><div class="q-body">
+        <div class="q-text">The Great Commission?</div>
+        <input type="text" name="q33" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">34</div><div class="q-body">
+        <div class="q-text">The Holy Spirit coming upon the disciples in wind, fire, and tongues?</div>
+        <input type="text" name="q34" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">35</div><div class="q-body">
+        <div class="q-text">"For as by the one man's disobedience the many were made sinners, so by the one man's obedience the many will be made righteous."</div>
+        <input type="text" name="q35" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">36</div><div class="q-body">
+        <div class="q-text">"So now faith, hope, and love abide, these three; but the greatest of these is love."</div>
+        <input type="text" name="q36" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">37</div><div class="q-body">
+        <div class="q-text">A religious leader hears "Unless a man is born again he cannot enter the kingdom of heaven"?</div>
+        <input type="text" name="q37" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">38</div><div class="q-body">
+        <div class="q-text">Satan bound for a thousand years?</div>
+        <input type="text" name="q38" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">39</div><div class="q-body">
+        <div class="q-text">The three Hebrews saved from the fiery furnace?</div>
+        <input type="text" name="q39" autocomplete="off">
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 5: MAIN TOPIC ── -->
+    <div class="section-card">
+      <div class="section-header">Short Answer — Give the Main Topic of the Following Passages</div>
+
+      <div class="q-row"><div class="q-num">40</div><div class="q-body">
+        <div class="q-text">Genesis 3</div>
+        <input type="text" name="q40" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">41</div><div class="q-body">
+        <div class="q-text">Isaiah 53</div>
+        <input type="text" name="q41" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">42</div><div class="q-body">
+        <div class="q-text">Romans 8</div>
+        <input type="text" name="q42" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">43</div><div class="q-body">
+        <div class="q-text">Psalm 119</div>
+        <input type="text" name="q43" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">44</div><div class="q-body">
+        <div class="q-text">Hebrews 11</div>
+        <input type="text" name="q44" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">45</div><div class="q-body">
+        <div class="q-text">Acts 15</div>
+        <input type="text" name="q45" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">46</div><div class="q-body">
+        <div class="q-text">John 17</div>
+        <input type="text" name="q46" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">47</div><div class="q-body">
+        <div class="q-text">Revelation 21–22</div>
+        <input type="text" name="q47" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">48</div><div class="q-body">
+        <div class="q-text">Luke 15</div>
+        <input type="text" name="q48" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">49</div><div class="q-body">
+        <div class="q-text">Exodus 3</div>
+        <input type="text" name="q49" autocomplete="off">
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 6: WHO SAID ── -->
+    <div class="section-card">
+      <div class="section-header">Short Answer — Who Said the Following?</div>
+
+      <div class="q-row"><div class="q-num">50</div><div class="q-body">
+        <div class="q-verse">"If I perish, I perish."</div>
+        <input type="text" name="q50" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">51</div><div class="q-body">
+        <div class="q-verse">"What is truth?"</div>
+        <input type="text" name="q51" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">52</div><div class="q-body">
+        <div class="q-verse">"After I am worn out and my master is old, will I now have this pleasure? … Will I really have a child, now that I am old?"</div>
+        <input type="text" name="q52" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">53</div><div class="q-body">
+        <div class="q-verse">"O Jerusalem, Jerusalem … how often I have longed to gather your children together, as a hen gathers her chicks under her wings, but you were not willing."</div>
+        <input type="text" name="q53" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">54</div><div class="q-body">
+        <div class="q-verse">"Grant that one of these two sons of mine may sit at your right and the other at your left in the kingdom."</div>
+        <input type="text" name="q54" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">55</div><div class="q-body">
+        <div class="q-verse">"The fire and the wood are here, but where is the lamb for the burnt offering?"</div>
+        <input type="text" name="q55" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">56</div><div class="q-body">
+        <div class="q-verse">"He must increase; I must decrease."</div>
+        <input type="text" name="q56" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">57</div><div class="q-body">
+        <div class="q-verse">"Am I a dog that you come at me with sticks?"</div>
+        <input type="text" name="q57" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">58</div><div class="q-body">
+        <div class="q-verse">"I know my Redeemer lives and that in the end he will stand upon the earth."</div>
+        <input type="text" name="q58" autocomplete="off">
+      </div></div>
+
+      <div class="q-row"><div class="q-num">59</div><div class="q-body">
+        <div class="q-verse">"Give your servant a discerning heart to govern your people and to distinguish between right and wrong."</div>
+        <input type="text" name="q59" autocomplete="off">
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 7: CHRONOLOGICAL ORDER ── -->
+    <div class="section-card">
+      <div class="section-header">Arrange in Proper Chronological Order</div>
+      <div class="drag-hint">☰ Drag the events below into the correct chronological order (earliest first)</div>
+      <ul class="sortable-list" id="chron-list">
+        <li class="sort-item" data-event="The giving of the Law">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-0">1</span>
+          <span>The giving of the Law</span>
+        </li>
+        <li class="sort-item" data-event="The atoning death of Christ">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-1">2</span>
+          <span>The atoning death of Christ</span>
+        </li>
+        <li class="sort-item" data-event="Malachi prophesies">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-2">3</span>
+          <span>Malachi prophesies</span>
+        </li>
+        <li class="sort-item" data-event="The promise to Abraham">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-3">4</span>
+          <span>The promise to Abraham</span>
+        </li>
+        <li class="sort-item" data-event="Creation and fall">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-4">5</span>
+          <span>Creation and fall</span>
+        </li>
+        <li class="sort-item" data-event="Pentecost">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-5">6</span>
+          <span>Pentecost</span>
+        </li>
+        <li class="sort-item" data-event="Exile in Babylon">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-6">7</span>
+          <span>Exile in Babylon</span>
+        </li>
+        <li class="sort-item" data-event="David is king over Israel">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-7">8</span>
+          <span>David is king over Israel</span>
+        </li>
+        <li class="sort-item" data-event="Paul is shipwrecked">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-8">9</span>
+          <span>Paul is shipwrecked</span>
+        </li>
+        <li class="sort-item" data-event="The judges rule over Israel">
+          <span class="drag-handle">⠿</span>
+          <span class="sort-pos" id="pos-9">10</span>
+          <span>The judges rule over Israel</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ── SECTION 8: OT BOOK ── -->
+    <div class="section-card">
+      <div class="section-header">Multiple Choice — Which Old Testament Book Corrects Each Error?</div>
+      <div class="pool-note">Use each book only once: Genesis · Esther · Job · Psalms · Proverbs · Song of Solomon · Isaiah · Daniel · Amos · Jonah</div>
+
+      <div class="q-row"><div class="q-num">61</div><div class="q-body">
+        <div class="q-text">"Surely God wouldn't expect me to stand for him if it would bring me pain."</div>
+        <select name="q61">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">62</div><div class="q-body">
+        <div class="q-text">"God wouldn't send me to share the gospel with those who have hurt me in the past."</div>
+        <select name="q62">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">63</div><div class="q-body">
+        <div class="q-text">"God came up with a new plan to send Jesus because his original plan didn't work."</div>
+        <select name="q63">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">64</div><div class="q-body">
+        <div class="q-text">"I'm just one little person. What impact could I have on the world around me?"</div>
+        <select name="q64">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">65</div><div class="q-body">
+        <div class="q-text">"If you are sick, you must have sin in your life. Good and godly people don't suffer."</div>
+        <select name="q65">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">66</div><div class="q-body">
+        <div class="q-text">"We should just sing upbeat songs at church because the people of God shouldn't be sad."</div>
+        <select name="q66">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">67</div><div class="q-body">
+        <div class="q-text">"The wise thing for me to do right now is to do what is best for myself and not listen to others."</div>
+        <select name="q67">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">68</div><div class="q-body">
+        <div class="q-text">"God doesn't care about the poor and oppressed. That's the social gospel."</div>
+        <select name="q68">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">69</div><div class="q-body">
+        <div class="q-text">"I know God promises to bless me, but I can't really trust him through the hard things in life, like famine, barrenness, and imprisonment."</div>
+        <select name="q69">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">70</div><div class="q-body">
+        <div class="q-text">"The Bible doesn't say anything about intimacy between a man and a woman. That's too fleshly for God to care about."</div>
+        <select name="q70">
+          <option value="">— Select a book —</option>
+          <option>Genesis</option><option>Esther</option><option>Job</option><option>Psalms</option><option>Proverbs</option><option>Song of Solomon</option><option>Isaiah</option><option>Daniel</option><option>Amos</option><option>Jonah</option>
+        </select>
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 9: NT BOOK ── -->
+    <div class="section-card">
+      <div class="section-header">Multiple Choice — Which New Testament Book Corrects Each Error?</div>
+      <div class="pool-note">Use each book only once: John · Acts · 1 Corinthians · Galatians · Ephesians · 1 Timothy · Hebrews · James · 1 John · Revelation</div>
+
+      <div class="q-row"><div class="q-num">71</div><div class="q-body">
+        <div class="q-text">"Sure Jesus died for me because he knew I would believe in him and live for him."</div>
+        <select name="q71">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">72</div><div class="q-body">
+        <div class="q-text">"We don't need to take the gospel to the world. We can accomplish it from right here."</div>
+        <select name="q72">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">73</div><div class="q-body">
+        <div class="q-text">"The God of the Old Testament is not the same as the Jesus of the New Testament."</div>
+        <select name="q73">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">74</div><div class="q-body">
+        <div class="q-text">"I have assurance of my salvation because I prayed a prayer and was baptized as a kid."</div>
+        <select name="q74">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">75</div><div class="q-body">
+        <div class="q-text">"As long as you believe the right things, it doesn't matter how you live your life."</div>
+        <select name="q75">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">76</div><div class="q-body">
+        <div class="q-text">"I'm sure I don't have any spiritual gifts. Only special people do."</div>
+        <select name="q76">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">77</div><div class="q-body">
+        <div class="q-text">"We are saved by Jesus, but we also have to do our part by obeying the law of the Old Testament."</div>
+        <select name="q77">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">78</div><div class="q-body">
+        <div class="q-text">"In the end it won't make any difference who we followed or what we did with our lives. Jesus will treat everybody the same when he comes back."</div>
+        <select name="q78">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">79</div><div class="q-body">
+        <div class="q-text">"There's nothing special about Jesus. He's just one way among many, just another prophet or good moral teacher."</div>
+        <select name="q79">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">80</div><div class="q-body">
+        <div class="q-text">"The best way to pick your elders is by looking at how successful they are in the business world. Next, consider how many degrees they have. After that, popularity matters most."</div>
+        <select name="q80">
+          <option value="">— Select a book —</option>
+          <option>John</option><option>Acts</option><option>1 Corinthians</option><option>Galatians</option><option>Ephesians</option><option>1 Timothy</option><option>Hebrews</option><option>James</option><option>1 John</option><option>Revelation</option>
+        </select>
+      </div></div>
+    </div>
+
+    <!-- ── SECTION 10: DOCTRINE MATCH ── -->
+    <div class="section-card">
+      <div class="section-header">Multiple Choice — Match the Verse with the Doctrine It Best Supports</div>
+      <div class="pool-note">Use each doctrine only once: Providence · Atonement · Election · Justification · Immutability · Sanctification · Inspiration · Deity of Christ · Trinity · Total Depravity</div>
+
+      <div class="q-row"><div class="q-num">81</div><div class="q-body">
+        <div class="q-verse">"Just as he who called you is holy, so be holy in all you do." — 1 Peter 1:15</div>
+        <select name="q81">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">82</div><div class="q-body">
+        <div class="q-verse">"God demonstrated his love for us in this, while we were still sinners, Christ died for us." — Romans 5:8</div>
+        <select name="q82">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">83</div><div class="q-body">
+        <div class="q-verse">"What you meant for evil, God meant for good." — Genesis 50:20</div>
+        <select name="q83">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">84</div><div class="q-body">
+        <div class="q-verse">"He chose us in him before the foundation of the world." — Ephesians 1:4</div>
+        <select name="q84">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">85</div><div class="q-body">
+        <div class="q-verse">"I the Lord do not change." — Malachi 3:6</div>
+        <select name="q85">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">86</div><div class="q-body">
+        <div class="q-verse">"Blessed is the man whose sin the Lord will not count against him." — Romans 4:8</div>
+        <select name="q86">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">87</div><div class="q-body">
+        <div class="q-verse">"In the beginning was the Word, and the Word was with God, and the Word was God." — John 1:1</div>
+        <select name="q87">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">88</div><div class="q-body">
+        <div class="q-verse">"Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit." — Matthew 28:19</div>
+        <select name="q88">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">89</div><div class="q-body">
+        <div class="q-verse">"For prophecy never had its origin in the will of man, but men spoke from God as they were carried along by the Holy Spirit." — 2 Peter 1:21</div>
+        <select name="q89">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+
+      <div class="q-row"><div class="q-num">90</div><div class="q-body">
+        <div class="q-verse">"There is no one righteous, not even one; there is no one who understands, no one who seeks God." — Romans 3:10–11</div>
+        <select name="q90">
+          <option value="">— Select a doctrine —</option>
+          <option>Providence</option><option>Atonement</option><option>Election</option><option>Justification</option><option>Immutability</option><option>Sanctification</option><option>Inspiration</option><option>Deity of Christ</option><option>Trinity</option><option>Total Depravity</option>
+        </select>
+      </div></div>
+    </div>
+
+    <!-- ── SUBMIT ── -->
+    <div class="submit-wrap">
+      <button type="button" class="btn-submit" onclick="submitTest()">Grade My Test</button>
+    </div>
+
+  </form>
+</div><!-- /container -->
+</div><!-- /test-screen -->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LOADING SCREEN
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="loading-screen">
+  <div class="container" style="max-width:600px">
+    <div class="spinner"></div>
+    <p>Claude is grading your test…</p>
+    <p style="font-size:0.85rem; margin-top:0.5rem; color:#8a9bb5;">This usually takes 10–20 seconds</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     RESULTS SCREEN
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="results-screen">
+  <div class="container">
+    <div id="score-banner" class="score-banner"></div>
+    <div id="results-body"></div>
+    <div style="text-align:center">
+      <button class="btn-retake" onclick="retake()">Take the Test Again</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+// ── ANSWER KEY ──────────────────────────────────────────────────
+const ANSWER_KEY = {
+  1:  { q: "Wrote the book of Acts?",                                          a: "Luke" },
+  2:  { q: "Appeared with Jesus on the Mount of Transfiguration?",             a: "Moses and Elijah" },
+  3:  { q: "Directed the rebuilding of the wall of Jerusalem?",                a: "Nehemiah" },
+  4:  { q: "Killed a thousand Philistines with a donkey's jawbone?",           a: "Samson" },
+  5:  { q: "Led the Israelites into the promised land?",                       a: "Joshua" },
+  6:  { q: "Was exiled to the island of Patmos where he wrote Revelation?",    a: "John" },
+  7:  { q: "Became the first king of the 10 tribes that broke away?",          a: "Jeroboam" },
+  8:  { q: "Rescued David from her foolish husband Nabal?",                    a: "Abigail" },
+  9:  { q: "Was rebuked by Paul for refusing to eat with Gentiles?",           a: "Peter (Cephas)" },
+  10: { q: "God gave Moses the Ten Commandments?",                             a: "Mount Sinai (Horeb)" },
+  11: { q: "A silversmith caused a riot?",                                     a: "Ephesus" },
+  12: { q: "Elijah had a confrontation with the prophets of Baal?",            a: "Mount Carmel" },
+  13: { q: "Believers were first called Christians?",                          a: "Antioch" },
+  14: { q: "The river Jesus was baptized in?",                                 a: "The Jordan River" },
+  15: { q: "The walls of the city collapsed after the Israelites marched around it?", a: "Jericho" },
+  16: { q: "Jesus walked on water?",                                           a: "Sea of Galilee" },
+  17: { q: "Jonah was supposed to be going when he fled to Tarshish?",         a: "Nineveh" },
+  18: { q: "Paul was heading when he was blinded on the road?",                a: "Damascus" },
+  19: { q: "The river Ezekiel was at with the exiles when he received a vision from God?", a: "The Chebar River (Kebar)" },
+  20: { q: "Peter visits Cornelius — in which book?",                          a: "Acts" },
+  21: { q: "Paul asks a runaway slave to be welcomed back — in which book?",   a: "Philemon" },
+  22: { q: "Israel worships a golden calf made by Aaron — in which book?",     a: "Exodus" },
+  23: { q: "The story of Joseph and the brothers — in which book?",            a: "Genesis" },
+  24: { q: "Twelve men explore Canaan, only two trust God — in which book?",   a: "Numbers" },
+  25: { q: "God's judgment pictured as a horde of locusts — in which book?",   a: "Joel" },
+  26: { q: "A description of the armor of God — in which book?",               a: "Ephesians" },
+  27: { q: "'My God, my God, why have you forsaken me?' in the OT — in which book?", a: "Psalms (Psalm 22)" },
+  28: { q: "A prophet marries a prostitute — in which book?",                  a: "Hosea" },
+  29: { q: "The Magi visiting the Christ child — in which book?",              a: "Matthew" },
+  30: { q: "God first speaks the Ten Commandments?",                           a: "Exodus 20" },
+  31: { q: "The call of Abram?",                                               a: "Genesis 12" },
+  32: { q: "The Sermon on the Mount?",                                         a: "Matthew 5" },
+  33: { q: "The Great Commission?",                                            a: "Matthew 28" },
+  34: { q: "The Holy Spirit coming upon the disciples in wind, fire, and tongues?", a: "Acts 2" },
+  35: { q: "One man's disobedience / one man's obedience quote?",              a: "Romans 5" },
+  36: { q: "Faith, hope, and love quote?",                                     a: "1 Corinthians 13" },
+  37: { q: "A religious leader hears 'Unless a man is born again'?",           a: "John 3" },
+  38: { q: "Satan bound for a thousand years?",                                a: "Revelation 20" },
+  39: { q: "The three Hebrews saved from the fiery furnace?",                  a: "Daniel 3" },
+  40: { q: "Main topic of Genesis 3",                                          a: "The Fall of Man" },
+  41: { q: "Main topic of Isaiah 53",                                          a: "The Suffering Servant / Atonement" },
+  42: { q: "Main topic of Romans 8",                                           a: "Life in the Spirit / No Condemnation" },
+  43: { q: "Main topic of Psalm 119",                                          a: "The Word of God" },
+  44: { q: "Main topic of Hebrews 11",                                         a: "Faith / Hall of Faith" },
+  45: { q: "Main topic of Acts 15",                                            a: "The Jerusalem Council / Gentiles and the Law" },
+  46: { q: "Main topic of John 17",                                            a: "Jesus' High Priestly Prayer" },
+  47: { q: "Main topic of Revelation 21–22",                                   a: "The New Creation / New Jerusalem" },
+  48: { q: "Main topic of Luke 15",                                            a: "Lost Sheep, Lost Coin, Prodigal Son / God's pursuit of the lost" },
+  49: { q: "Main topic of Exodus 3",                                           a: "The Call of Moses / The Burning Bush" },
+  50: { q: "Who said: 'If I perish, I perish'?",                              a: "Esther" },
+  51: { q: "Who said: 'What is truth?'",                                       a: "Pontius Pilate" },
+  52: { q: "Who said: 'After I am worn out… will I really have a child, now that I am old?'", a: "Sarah" },
+  53: { q: "Who said: 'O Jerusalem, Jerusalem… how often I have longed to gather your children'?", a: "Jesus" },
+  54: { q: "Who said: 'Grant that one of these two sons of mine may sit at your right and left'?", a: "The mother of James and John" },
+  55: { q: "Who said: 'The fire and the wood are here, but where is the lamb for the burnt offering?'", a: "Isaac" },
+  56: { q: "Who said: 'He must increase; I must decrease'?",                   a: "John the Baptist" },
+  57: { q: "Who said: 'Am I a dog that you come at me with sticks?'",          a: "Goliath" },
+  58: { q: "Who said: 'I know my Redeemer lives and that in the end he will stand upon the earth'?", a: "Job" },
+  59: { q: "Who said: 'Give your servant a discerning heart to govern your people'?", a: "Solomon" },
+  61: { q: "OT book for: 'God wouldn't expect me to stand for him if it would bring me pain'", a: "Daniel" },
+  62: { q: "OT book for: 'God wouldn't send me to share the gospel with those who have hurt me'", a: "Jonah" },
+  63: { q: "OT book for: 'God came up with a new plan to send Jesus because his original plan didn't work'", a: "Genesis" },
+  64: { q: "OT book for: 'I'm just one little person. What impact could I have?'", a: "Esther" },
+  65: { q: "OT book for: 'If you are sick, you must have sin in your life'",   a: "Job" },
+  66: { q: "OT book for: 'We should just sing upbeat songs at church'",        a: "Psalms" },
+  67: { q: "OT book for: 'The wise thing is to do what is best for myself'",   a: "Proverbs" },
+  68: { q: "OT book for: 'God doesn't care about the poor and oppressed'",     a: "Amos" },
+  69: { q: "OT book for: 'I can't really trust God through the hard things'",  a: "Isaiah" },
+  70: { q: "OT book for: 'The Bible doesn't say anything about intimacy between a man and woman'", a: "Song of Solomon" },
+  71: { q: "NT book for: 'Jesus died for me because he knew I would believe'", a: "Ephesians" },
+  72: { q: "NT book for: 'We don't need to take the gospel to the world'",     a: "Acts" },
+  73: { q: "NT book for: 'The God of the OT is not the same as the Jesus of the NT'", a: "Hebrews" },
+  74: { q: "NT book for: 'I have assurance because I prayed a prayer and was baptized as a kid'", a: "1 John" },
+  75: { q: "NT book for: 'As long as you believe the right things, it doesn't matter how you live'", a: "James" },
+  76: { q: "NT book for: 'I don't have any spiritual gifts'",                  a: "1 Corinthians" },
+  77: { q: "NT book for: 'We are saved by Jesus but must also obey the law of the OT'", a: "Galatians" },
+  78: { q: "NT book for: 'It won't matter who we followed or what we did'",    a: "Revelation" },
+  79: { q: "NT book for: 'There's nothing special about Jesus'",               a: "John" },
+  80: { q: "NT book for: 'The best way to pick elders is by business success'", a: "1 Timothy" },
+  81: { q: "Doctrine for 1 Peter 1:15 — 'be holy in all you do'",             a: "Sanctification" },
+  82: { q: "Doctrine for Romans 5:8 — 'while we were still sinners, Christ died for us'", a: "Atonement" },
+  83: { q: "Doctrine for Genesis 50:20 — 'What you meant for evil, God meant for good'", a: "Providence" },
+  84: { q: "Doctrine for Ephesians 1:4 — 'He chose us in him before the foundation of the world'", a: "Election" },
+  85: { q: "Doctrine for Malachi 3:6 — 'I the Lord do not change'",           a: "Immutability" },
+  86: { q: "Doctrine for Romans 4:8 — 'sin the Lord will not count against him'", a: "Justification" },
+  87: { q: "Doctrine for John 1:1 — 'the Word was God'",                      a: "Deity of Christ" },
+  88: { q: "Doctrine for Matthew 28:19 — 'Father and of the Son and of the Holy Spirit'", a: "Trinity" },
+  89: { q: "Doctrine for 2 Peter 1:21 — 'men spoke from God as they were carried along by the Holy Spirit'", a: "Inspiration" },
+  90: { q: "Doctrine for Romans 3:10–11 — 'There is no one righteous'",       a: "Total Depravity" }
+};
+
+const CHRON_CORRECT_ORDER = [
+  "Creation and fall",
+  "The promise to Abraham",
+  "The giving of the Law",
+  "The judges rule over Israel",
+  "David is king over Israel",
+  "Exile in Babylon",
+  "Malachi prophesies",
+  "The atoning death of Christ",
+  "Pentecost",
+  "Paul is shipwrecked"
+];
+
+const SECTION_LABELS = {
+  "1-9":   "Who Did the Following?",
+  "10-19": "Where Did the Following Take Place?",
+  "20-29": "In Which Book of the Bible?",
+  "30-39": "Name the Book and Chapter",
+  "40-49": "Give the Main Topic",
+  "50-59": "Who Said the Following?",
+  "60":    "Chronological Order",
+  "61-70": "Which Old Testament Book? (Multiple Choice)",
+  "71-80": "Which New Testament Book? (Multiple Choice)",
+  "81-90": "Match the Verse with the Doctrine (Multiple Choice)"
+};
+
+// ── DRAG AND DROP ────────────────────────────────────────────────
+let dragSrc = null;
+
+function initDragDrop() {
+  const list = document.getElementById('chron-list');
+  const items = list.querySelectorAll('.sort-item');
+
+  items.forEach(item => {
+    item.setAttribute('draggable', true);
+
+    item.addEventListener('dragstart', e => {
+      dragSrc = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      list.querySelectorAll('.sort-item').forEach(i => i.classList.remove('over'));
+      updatePositionNumbers();
+    });
+
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      list.querySelectorAll('.sort-item').forEach(i => i.classList.remove('over'));
+      if (item !== dragSrc) item.classList.add('over');
+    });
+
+    item.addEventListener('drop', e => {
+      e.stopPropagation();
+      if (dragSrc !== item) {
+        const allItems = [...list.querySelectorAll('.sort-item')];
+        const srcIdx = allItems.indexOf(dragSrc);
+        const tgtIdx = allItems.indexOf(item);
+        if (srcIdx < tgtIdx) {
+          list.insertBefore(dragSrc, item.nextSibling);
+        } else {
+          list.insertBefore(dragSrc, item);
+        }
+      }
+      item.classList.remove('over');
+    });
+  });
+
+  // Touch support
+  let touchDragSrc = null, touchClone = null, touchOffsetX = 0, touchOffsetY = 0;
+
+  items.forEach(item => {
+    item.addEventListener('touchstart', e => {
+      touchDragSrc = item;
+      const touch = e.touches[0];
+      const rect = item.getBoundingClientRect();
+      touchOffsetX = touch.clientX - rect.left;
+      touchOffsetY = touch.clientY - rect.top;
+      touchClone = item.cloneNode(true);
+      touchClone.style.cssText = `position:fixed;opacity:0.7;pointer-events:none;z-index:9999;width:${rect.width}px;left:${rect.left}px;top:${rect.top}px;margin:0;`;
+      document.body.appendChild(touchClone);
+      item.classList.add('dragging');
+    }, { passive: true });
+
+    item.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      if (touchClone) {
+        touchClone.style.left = (touch.clientX - touchOffsetX) + 'px';
+        touchClone.style.top  = (touch.clientY - touchOffsetY) + 'px';
+      }
+      const elBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetItem = elBelow ? elBelow.closest('.sort-item') : null;
+      list.querySelectorAll('.sort-item').forEach(i => i.classList.remove('over'));
+      if (targetItem && targetItem !== touchDragSrc) targetItem.classList.add('over');
+    }, { passive: false });
+
+    item.addEventListener('touchend', e => {
+      if (touchClone) { touchClone.remove(); touchClone = null; }
+      touchDragSrc && touchDragSrc.classList.remove('dragging');
+      list.querySelectorAll('.sort-item').forEach(i => i.classList.remove('over'));
+      const touch = e.changedTouches[0];
+      const elBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetItem = elBelow ? elBelow.closest('.sort-item') : null;
+      if (targetItem && targetItem !== touchDragSrc && touchDragSrc) {
+        const allItems = [...list.querySelectorAll('.sort-item')];
+        const srcIdx = allItems.indexOf(touchDragSrc);
+        const tgtIdx = allItems.indexOf(targetItem);
+        if (srcIdx < tgtIdx) list.insertBefore(touchDragSrc, targetItem.nextSibling);
+        else list.insertBefore(touchDragSrc, targetItem);
+      }
+      touchDragSrc = null;
+      updatePositionNumbers();
+    });
+  });
+}
+
+function updatePositionNumbers() {
+  document.querySelectorAll('#chron-list .sort-item').forEach((item, i) => {
+    item.querySelector('.sort-pos').textContent = i + 1;
+  });
+}
+
+// ── FORM COLLECTION ──────────────────────────────────────────────
+function collectAnswers() {
+  const form = document.getElementById('test-form');
+  const answers = {};
+  for (let q = 1; q <= 90; q++) {
+    if (q === 60) continue; // handled separately
+    const el = form.elements['q' + q];
+    answers[q] = el ? el.value.trim() : '';
+  }
+  // Chronological order
+  answers.chron = [...document.querySelectorAll('#chron-list .sort-item')]
+    .map(item => item.dataset.event);
+  return answers;
+}
+
+// ── MAIN SUBMIT ──────────────────────────────────────────────────
+function submitTest() {
+  const name = document.getElementById('taker-name').value.trim();
+  if (!name) {
+    alert('Please enter your name before submitting.');
+    document.getElementById('taker-name').focus();
+    return;
+  }
+  runGrading();
+}
+
+// ── GRADING (via Apps Script proxy) ──────────────────────────────
+async function runGrading() {
+  const name = document.getElementById('taker-name').value.trim();
+  const answers = collectAnswers();
+
+  document.getElementById('test-screen').style.display = 'none';
+  document.getElementById('loading-screen').style.display = 'block';
+  document.getElementById('results-screen').style.display = 'none';
+
+  try {
+    const response = await fetch(SHEETS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        name: name,
+        answers: answers,
+        chronOrder: answers.chron
+      })
+    });
+
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error);
+
+    showResults(name, result.grades, result.chronGrades, answers);
+
+  } catch (err) {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('test-screen').style.display = 'block';
+    alert('Error grading test: ' + err.message + '\n\nPlease try again. If the problem persists, contact the test administrator.');
+  }
+}
+
+// ── RESULTS DISPLAY ──────────────────────────────────────────────
+function showResults(name, grades, chronGrades, answers) {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  // Tally score
+  const shortAnswerCorrect = grades.filter(g => g.correct).length;
+  const chronCorrect = chronGrades.filter(g => g.correct).length;
+  const total = shortAnswerCorrect + chronCorrect;
+  const pct = Math.round((total / 99) * 100);
+
+  // Score banner
+  document.getElementById('score-banner').innerHTML = `
+    <div class="score-name">${name}</div>
+    <div class="score-big">${total}<span style="font-size:2rem;opacity:0.6">/99</span></div>
+    <div class="score-out">questions correct</div>
+    <div class="score-pct">${pct}%</div>
+  `;
+
+  // Build results sections
+  const sections = [
+    { label: "Who Did the Following?",       range: [1,9] },
+    { label: "Where Did the Following Happen?", range: [10,19] },
+    { label: "In Which Book of the Bible?",  range: [20,29] },
+    { label: "Name the Book and Chapter",    range: [30,39] },
+    { label: "Give the Main Topic",          range: [40,49] },
+    { label: "Who Said the Following?",      range: [50,59] },
+    { label: "Chronological Order (10 pts)", range: 'chron' },
+    { label: "Old Testament Book (Multiple Choice)", range: [61,70] },
+    { label: "New Testament Book (Multiple Choice)", range: [71,80] },
+    { label: "Match the Verse with the Doctrine",    range: [81,90] }
+  ];
+
+  const gradeMap = {};
+  grades.forEach(g => { gradeMap[g.q] = g; });
+
+  let html = '';
+  sections.forEach(sec => {
+    let items = '';
+    let secCorrect = 0, secTotal = 0;
+
+    if (sec.range === 'chron') {
+      chronGrades.forEach(cg => {
+        secTotal++;
+        if (cg.correct) secCorrect++;
+        items += `
+          <div class="result-item ${cg.correct ? '' : ''}">
+            <div class="ri-icon">${cg.correct ? '✅' : '❌'}</div>
+            <div class="ri-body">
+              <div class="ri-q">Position ${cg.position}</div>
+              <div class="ri-user">${cg.userAnswer}</div>
+              ${!cg.correct ? `<div class="ri-correct">Correct: ${cg.correctAnswer}</div>` : ''}
+            </div>
+          </div>`;
+      });
+    } else {
+      const [from, to] = sec.range;
+      for (let q = from; q <= to; q++) {
+        secTotal++;
+        const g = gradeMap[q];
+        if (!g) continue;
+        if (g.correct) secCorrect++;
+        const key = ANSWER_KEY[q];
+        items += `
+          <div class="result-item">
+            <div class="ri-icon">${g.correct ? '✅' : '❌'}</div>
+            <div class="ri-body">
+              <div class="ri-q">Q${q}. ${key.q}</div>
+              <div class="ri-user">${answers[q] || '(blank)'}</div>
+              ${!g.correct ? `<div class="ri-correct">Correct: ${key.a}</div>` : ''}
+              ${g.note ? `<div class="ri-note">${g.note}</div>` : ''}
+            </div>
+          </div>`;
+      }
+    }
+
+    html += `
+      <div class="result-section-card">
+        <div class="result-section-title">${sec.label} — ${secCorrect}/${secTotal}</div>
+        ${items}
+      </div>`;
+  });
+
+  document.getElementById('results-body').innerHTML = html;
+  document.getElementById('results-screen').style.display = 'block';
+}
+
+// ── RETAKE ────────────────────────────────────────────────────────
+function retake() {
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('test-screen').style.display = 'block';
+  document.getElementById('test-form').reset();
+  // Reset drag list to original order
+  const list = document.getElementById('chron-list');
+  const items = [
+    'The giving of the Law', 'The atoning death of Christ', 'Malachi prophesies',
+    'The promise to Abraham', 'Creation and fall', 'Pentecost',
+    'Exile in Babylon', 'David is king over Israel', 'Paul is shipwrecked',
+    'The judges rule over Israel'
+  ];
+  list.innerHTML = items.map((ev, i) => `
+    <li class="sort-item" data-event="${ev}">
+      <span class="drag-handle">⠿</span>
+      <span class="sort-pos">${i+1}</span>
+      <span>${ev}</span>
+    </li>`).join('');
+  initDragDrop();
+  window.scrollTo(0, 0);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+initDragDrop();
+</script>
+</body>
+</html>
